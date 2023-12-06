@@ -1,0 +1,143 @@
+﻿@*
+    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
+*@
+@{
+    Layout = null;
+}
+<!doctype html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Đăng Ký</title>
+    <link rel="shortcut icon" type="image/png" href="~/images/logos/iconPage.png" />
+    <link rel="stylesheet" href="~/Admin/css/styles.min.css" />
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js" integrity="sha512-v2CJ7UaYy4JwqLDIrZUI/4hqeoQieOmAZNXBeQyjo21dadnwR+8ZaIJVT8EE2iyI61OV8e6M8PP2/4hpQINQ/g==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+</head>
+
+<body>
+    <!--  Body Wrapper -->
+    <div class="page-wrapper" id="main-wrapper" data-layout="vertical" data-navbarbg="skin6" data-sidebartype="full"
+         data-sidebar-position="fixed" data-header-position="fixed">
+        <div class="position-relative overflow-hidden radial-gradient min-vh-100 d-flex align-items-center justify-content-center">
+            <div class="d-flex align-items-center justify-content-center w-100">
+                <div class="row justify-content-center w-50">
+                    <div class="col-md-8 col-lg-6 col-xxl-3">
+                        <div class="card mb-0">
+                            <div class="card-body">
+                                <span class="text-nowrap logo-img text-center d-block py-3 w-100 cursor-pointer" id="logo-link">
+                                    <h1 class="fw-bold text-primary m-0">QUẢN<span class="text-secondary"> LÝ </span>SÁCH</h1>
+                                </span>
+                                <form>
+                                    <div class="mb-3">
+                                        <label for="exampleInputtext1" class="form-label">Tài Khoản</label>
+                                        <input type="text" class="form-control" id="userName" aria-describedby="textHelp">
+                                    </div>
+                                    <div class="mb-3">
+                                        <label for="exampleInputEmail1" class="form-label">Email</label>
+                                        <input type="email" class="form-control" id="email" aria-describedby="emailHelp">
+                                    </div>
+                                    <div class="mb-4">
+                                        <label for="exampleInputPassword1" class="form-label">Mật Khẩu</label>
+                                        <input type="password" class="form-control" id="password">
+                                    </div>
+                                    <a href="#" id="sign-up-btn" class="btn btn-primary w-100 py-8 fs-6 mb-4 rounded-2">Đăng Ký</a>
+                                    <div class="d-flex align-items-center justify-content-center">
+                                        <p class="fs-6 mb-0 fw-bold">Đã có tài khoản?</p>
+                                        <span class="text-primary fw-bold ms-2 cursor-pointer" id="sign-in-link">Đăng Nhập</span>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script src="~/libs/jquery/dist/jquery.min.js"></script>
+    <script src="~/libs/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+<script>
+    function SignUp(userName, email, password) {
+        $.ajax({
+            url: "api/Library/SignIn",
+            type: "GET",
+            contentType: "application/json",
+            success: function (respondata) {
+                // var userName = String($("#userName").val());
+                // var email = String($("#email").val());
+                // var password = String($("#password").val());
+                var IsExist = false;
+                respondata.forEach(function (item, index) {
+                    if (userName == String(item["userName"])) {
+                        IsExist = true;
+                        Swal.fire({
+                            icon: "error",
+                            title: "Người Dùng Đã Tồn Tại!",
+                        });
+                    }
+                });
+                if (!IsExist) {
+                    var obj = {
+                        "gmail": email,
+                        "password": password,
+                        "userName": userName
+                    }
+                    var newAccount = JSON.stringify(obj);
+                    $.ajax({
+                        url: "api/Library/SignUp",
+                        type: "POST",
+                        contentType: "application/json",
+                        data: newAccount,
+                        success: function (responData) {
+                            Swal.fire({
+                                title: "Đăng Ký Thành Công!",
+                                confirmButtonText: "Xác Nhận",
+                            }).then((result) => {
+                                if (result.isConfirmed) {
+                                    window.location.href = "/HomePage";
+                                }
+                            });
+                        },
+                        error: function (ex) {
+                            Swal.fire({
+                                icon: "error",
+                                title: "Oops...",
+                                text: "Lỗi không xác định!",
+                            });
+                        }
+                    });
+                }
+
+            },
+            error: function (e) {
+                Swal.fire({
+                    icon: "error",
+                    title: "Oops...",
+                });
+            }
+        })
+
+    }
+    $(document).on("click", "#sign-up-btn", function (event) {
+        var userName = $("#userName").val();
+        var email = $("#email").val();
+        var password = $("#password").val();
+        if (userName != "" && email != "" && password != "") {
+            SignUp(userName, email, password);
+        } else {
+            Swal.fire("Vui lòng nhập đầy đủ thông tin!");
+        }
+    });
+    $(document).on("click", "#sign-in-link", function () {
+        window.location.href = "/SignIn";
+    })
+    $(document).on("click", "#logo-link", function () {
+        window.location.href = "/HomePage";
+    })
+</script>
+</html>
